@@ -1,12 +1,19 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { specializations } from '@/data/specializations'
+import { useAuth } from '@/context/AuthContext'
 import { Lock, User, Phone, Mail } from 'lucide-react'
+import Link from 'next/link'
 
 export default function RegisterPage() {
+  const router = useRouter()
+  const searchParams = useSearchParams()
+  const { register } = useAuth()
+  const [callbackUrl, setCallbackUrl] = useState<string>('')
   const [formData, setFormData] = useState({
     fullName: '',
     phone: '',
@@ -19,6 +26,14 @@ export default function RegisterPage() {
 
   const [errors, setErrors] = useState<Record<string, string>>({})
   const [submitted, setSubmitted] = useState(false)
+
+  // تحميل callbackUrl من URL parameters
+  useEffect(() => {
+    const callback = searchParams.get('callbackUrl')
+    if (callback) {
+      setCallbackUrl(callback)
+    }
+  }, [searchParams])
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -85,11 +100,19 @@ export default function RegisterPage() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (validateForm()) {
+      // استدعاء دالة التسجيل من Auth Context
+      register(formData)
       setSubmitted(true)
-      console.log('Form submitted:', formData)
+      console.log('تم التسجيل بنجاح:', formData)
+      
+      // إعادة التوجيه بعد 1.5 ثانية
       setTimeout(() => {
-        setSubmitted(false)
-      }, 3000)
+        if (callbackUrl) {
+          router.push(callbackUrl)
+        } else {
+          router.push('/')
+        }
+      }, 1500)
     }
   }
 
@@ -283,12 +306,12 @@ export default function RegisterPage() {
               {/* Login Link */}
               <p className="text-center text-slate-600">
                 هل لديك حساب بالفعل؟{' '}
-                <button
-                  type="button"
+                <Link
+                  href={callbackUrl ? `/login?callbackUrl=${encodeURIComponent(callbackUrl)}` : '/login'}
                   className="text-[#B88424] font-semibold hover:underline"
                 >
                   تسجيل الدخول
-                </button>
+                </Link>
               </p>
             </form>
           </div>

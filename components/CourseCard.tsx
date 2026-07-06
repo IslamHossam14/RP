@@ -1,5 +1,9 @@
+'use client'
+
 import { Clock, BarChart3 } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 import type { Course } from '@/data/courses'
 
 interface CourseCardProps {
@@ -7,6 +11,15 @@ interface CourseCardProps {
 }
 
 const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
+  const router = useRouter()
+  const { isLoggedIn } = useAuth()
+
+  const handleCourseClick = (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      e.preventDefault()
+      router.push('/login?callbackUrl=' + encodeURIComponent(`/courses/${course.id}`))
+    }
+  }
   const categoryLabel = course.category === 'diploma' ? 'دبلوم' : 'كورس'
   const categoryColor =
     course.category === 'diploma'
@@ -60,9 +73,18 @@ const CourseCard: React.FC<CourseCardProps> = ({ course }) => {
             <span className="text-sm text-[#133A63] font-semibold mr-2">جنية</span>
           </p>
         </div>
-        <Link href={`/courses/${course.id}`} className="btn-secondary text-sm py-2 px-5 whitespace-nowrap">
-          التفاصيل
-        </Link>
+        <button
+          onClick={handleCourseClick}
+          className="btn-secondary text-sm py-2 px-5 whitespace-nowrap"
+        >
+          {isLoggedIn ? (
+            <Link href={`/courses/${course.id}`} className="block">
+              التفاصيل
+            </Link>
+          ) : (
+            'التفاصيل'
+          )}
+        </button>
       </div>
     </div>
   )

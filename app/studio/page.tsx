@@ -4,7 +4,7 @@ import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useState } from 'react'
+import { useAuth } from '@/context/AuthContext'
 import {
   Video,
   Mic2,
@@ -17,11 +17,11 @@ import {
 
 export default function StudioPage() {
   const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { isLoggedIn } = useAuth()
 
   const handlePackageSelect = () => {
     if (!isLoggedIn) {
-      router.push('/register')
+      router.push('/login?callbackUrl=' + encodeURIComponent('/studio'))
       return
     }
     // سيتم التحويل لبوابة الدفع لاحقاً

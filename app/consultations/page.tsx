@@ -1,9 +1,22 @@
+'use client'
+
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 import { Brain, Scale, ArrowLeft } from 'lucide-react'
 
 export default function ConsultationsPage() {
+  const router = useRouter()
+  const { isLoggedIn } = useAuth()
+
+  const handleConsultationClick = (e: React.MouseEvent) => {
+    if (!isLoggedIn) {
+      e.preventDefault()
+      router.push('/login?callbackUrl=' + encodeURIComponent('/consultations/booking'))
+    }
+  }
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -70,9 +83,18 @@ export default function ConsultationsPage() {
                     300 جنيها<span className="text-sm text-slate-600 mr-2">الجلسة الواحدة</span>
                   </p>
                 </div>
-                <Link href="/consultations/booking" className="btn-secondary w-full text-center block">
-                  احجز استشارة نفسية
-                </Link>
+                <button
+                  onClick={handleConsultationClick}
+                  className="btn-secondary w-full text-center block"
+                >
+                  {isLoggedIn ? (
+                    <Link href="/consultations/booking" className="block">
+                      احجز استشارة نفسية
+                    </Link>
+                  ) : (
+                    'احجز استشارة نفسية'
+                  )}
+                </button>
               </div>
             </div>
 
@@ -119,9 +141,18 @@ export default function ConsultationsPage() {
                     500 جنيها<span className="text-sm text-slate-600 mr-2">الاستشارة الواحدة</span>
                   </p>
                 </div>
-                <Link href="/consultations/booking" className="btn-secondary w-full text-center block">
-                  احجز استشارة قانونية
-                </Link>
+                <button
+                  onClick={handleConsultationClick}
+                  className="btn-secondary w-full text-center block"
+                >
+                  {isLoggedIn ? (
+                    <Link href="/consultations/booking" className="block">
+                      احجز استشارة قانونية
+                    </Link>
+                  ) : (
+                    'احجز استشارة قانونية'
+                  )}
+                </button>
               </div>
             </div>
             </div>

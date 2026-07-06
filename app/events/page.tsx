@@ -1,9 +1,21 @@
+'use client'
+
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
+import { useAuth } from '@/context/AuthContext'
 import { Calendar, MapPin, Users, ArrowLeft } from 'lucide-react'
 
 export default function EventsPage() {
+  const router = useRouter()
+  const { isLoggedIn } = useAuth()
+
+  const handleEventRegister = () => {
+    if (!isLoggedIn) {
+      router.push('/login?callbackUrl=' + encodeURIComponent('/events'))
+    }
+  }
   const events = [
     {
       id: 1,
@@ -129,8 +141,11 @@ export default function EventsPage() {
                         من أصل {event.attendees}
                       </p>
                     </div>
-                    <button className="btn-secondary w-full mt-4">
-                      سجل الآن
+                    <button
+                      onClick={handleEventRegister}
+                      className="btn-secondary w-full mt-4"
+                    >
+                      {isLoggedIn ? 'سجل الآن' : 'سجل الآن'}
                     </button>
                   </div>
                 </div>

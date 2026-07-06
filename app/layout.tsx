@@ -2,6 +2,7 @@ import { Analytics } from '@vercel/analytics/next'
 import type { Metadata, Viewport } from 'next'
 import { IBM_Plex_Sans_Arabic } from 'next/font/google'
 import WhatsAppButton from '@/components/WhatsAppButton'
+import { AuthProvider } from '@/context/AuthContext'
 import './globals.css'
 
 const ibmPlexSansArabic = IBM_Plex_Sans_Arabic({
@@ -47,9 +48,11 @@ export default function RootLayout({
   return (
     <html lang="ar" dir="rtl" className={ibmPlexSansArabic.className}>
       <body className="antialiased bg-white text-slate-900">
-        {children}
-        <WhatsAppButton />
-        {process.env.NODE_ENV === 'production' && <Analytics />}
+        <AuthProvider>
+          {children}
+          <WhatsAppButton />
+          {process.env.NODE_ENV === 'production' && <Analytics />}
+        </AuthProvider>
       </body>
     </html>
   )

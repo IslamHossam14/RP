@@ -1,9 +1,16 @@
+'use client'
+
+import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { Brain, Scale, ArrowLeft } from 'lucide-react'
+import AuthModal from '@/components/AuthModal'
+import { useAuth } from '@/context/AuthContext'
 
 export default function ConsultationsPage() {
+  const { isLoggedIn } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -70,9 +77,11 @@ export default function ConsultationsPage() {
                     300 جنيها<span className="text-sm text-slate-600 mr-2">الجلسة الواحدة</span>
                   </p>
                 </div>
-                <Link href="/consultations/booking" className="btn-secondary w-full text-center block">
+                <button 
+                  onClick={() => setShowAuthModal(true)}
+                  className="btn-secondary w-full text-center block">
                   احجز استشارة نفسية
-                </Link>
+                </button>
               </div>
             </div>
 
@@ -119,9 +128,11 @@ export default function ConsultationsPage() {
                     500 جنيها<span className="text-sm text-slate-600 mr-2">الاستشارة الواحدة</span>
                   </p>
                 </div>
-                <Link href="/consultations/booking" className="btn-secondary w-full text-center block">
+                <button 
+                  onClick={() => setShowAuthModal(true)}
+                  className="btn-secondary w-full text-center block">
                   احجز استشارة قانونية
-                </Link>
+                </button>
               </div>
             </div>
             </div>
@@ -229,6 +240,8 @@ export default function ConsultationsPage() {
       </section>
 
       <Footer />
+      
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

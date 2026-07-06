@@ -7,13 +7,16 @@ import { useState } from 'react'
 import { useParams, useRouter } from 'next/navigation'
 import { CheckCircle, Users, BarChart3, Clock, Lock } from 'lucide-react'
 import Link from 'next/link'
+import AuthModal from '@/components/AuthModal'
+import { useAuth } from '@/context/AuthContext'
 
 export default function CourseDetailPage() {
   const params = useParams()
   const router = useRouter()
+  const { isLoggedIn } = useAuth()
   const course = courses.find((c) => c.id === params.id)
   const [purchased, setPurchased] = useState(false)
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   if (!course) {
     return (
@@ -25,14 +28,16 @@ export default function CourseDetailPage() {
             العودة إلى الدورات
           </Link>
         </div>
-        <Footer />
-      </div>
-    )
-  }
+      <Footer />
+      
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
+    </div>
+  )
+}
 
   const handlePayment = () => {
     if (!isLoggedIn) {
-      router.push('/register')
+      setShowAuthModal(true)
       return
     }
     // محاكاة عملية الدفع

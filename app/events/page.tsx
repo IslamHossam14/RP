@@ -1,9 +1,16 @@
+'use client'
+
+import { useState } from 'react'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import Link from 'next/link'
 import { Calendar, MapPin, Users, ArrowLeft } from 'lucide-react'
+import AuthModal from '@/components/AuthModal'
+import { useAuth } from '@/context/AuthContext'
 
 export default function EventsPage() {
+  const { isLoggedIn } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
   const events = [
     {
       id: 1,
@@ -129,7 +136,9 @@ export default function EventsPage() {
                         من أصل {event.attendees}
                       </p>
                     </div>
-                    <button className="btn-secondary w-full mt-4">
+                    <button 
+                      onClick={() => setShowAuthModal(true)}
+                      className="btn-secondary w-full mt-4">
                       سجل الآن
                     </button>
                   </div>
@@ -235,6 +244,8 @@ export default function EventsPage() {
       </section>
 
       <Footer />
+      
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

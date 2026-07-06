@@ -14,14 +14,17 @@ import {
   MonitorPlay,
   Grid3x3,
 } from 'lucide-react'
+import AuthModal from '@/components/AuthModal'
+import { useAuth } from '@/context/AuthContext'
 
 export default function StudioPage() {
   const router = useRouter()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const { isLoggedIn } = useAuth()
+  const [showAuthModal, setShowAuthModal] = useState(false)
 
   const handlePackageSelect = () => {
     if (!isLoggedIn) {
-      router.push('/register')
+      setShowAuthModal(true)
       return
     }
     // سيتم التحويل لبوابة الدفع لاحقاً
@@ -366,6 +369,8 @@ export default function StudioPage() {
       </section>
 
       <Footer />
+      
+      <AuthModal isOpen={showAuthModal} onClose={() => setShowAuthModal(false)} />
     </div>
   )
 }

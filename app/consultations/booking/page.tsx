@@ -2,17 +2,31 @@
 
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { CheckCircle, Lock, ArrowRight, Brain, Scale } from 'lucide-react'
 import Link from 'next/link'
+import { useRouter } from 'next/navigation'
 
 export default function BookingPage() {
-  const [step, setStep] = useState(1) // 1: Login, 2: Select Type, 3: Choose Specialist, 4: Choose Time, 5: Payment
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
+  const router = useRouter()
+  const [step, setStep] = useState(2) // بدء من الخطوة 2: اختيار نوع الاستشارة
+  const [userData, setUserData] = useState<{ fullName: string; email: string; phone: string } | null>(null)
   const [consultationType, setConsultationType] = useState<'psychological' | 'legal' | null>(null)
   const [selectedSpecialist, setSelectedSpecialist] = useState<string | null>(null)
   const [selectedTime, setSelectedTime] = useState<string | null>(null)
   const [paymentDone, setPaymentDone] = useState(false)
+
+  // التحقق من بيانات المستخدم عند تحميل الصفحة
+  useEffect(() => {
+    const storedUser = localStorage.getItem('consultationUser')
+    if (storedUser) {
+      const user = JSON.parse(storedUser)
+      setUserData(user)
+    } else {
+      // إعادة التوجيه إلى صفحة التسجيل إذا لم يسجل المستخدم دخوله
+      router.push('/consultations/login')
+    }
+  }, [])
 
   const psychologists = [
     { id: '1', name: 'د. فاطمة أحمد', experience: '12 سنة خبرة', price: 300 },
@@ -34,11 +48,6 @@ export default function BookingPage() {
 
   const timeSlots = ['09:00 صباحاً', '10:30 صباحاً', '02:00 مساءً', '03:30 مساءً', '04:30 مساءً']
 
-  const handleLogin = () => {
-    setIsLoggedIn(true)
-    setStep(2)
-  }
-
   const handleSelectType = (type: 'psychological' | 'legal') => {
     setConsultationType(type)
     setStep(3)
@@ -58,67 +67,20 @@ export default function BookingPage() {
     setPaymentDone(true)
   }
 
-  // Step 1: Login
-  if (!isLoggedIn) {
+  // إذا لم يتم تحميل بيانات المستخدم بعد، نعرض شاشة تحميل
+  if (!userData) {
     return (
-      <div className="min-h-screen bg-white">
+      <div className="min-h-screen bg-white flex items-center justify-center">
         <Navbar />
-
-        <section className="bg-gradient-to-br from-[#133A63] to-[#0A1F36] text-white py-16">
-          <div className="container-custom">
-            <h1 className="text-4xl md:text-5xl font-bold mb-4">احجز استشارتك</h1>
-            <p className="text-lg text-slate-200 max-w-2xl">
-              أولاً يجب تسجيل الدخول أو إنشاء حساب جديد للمتابعة
-            </p>
-          </div>
-        </section>
-
-        <div className="container-custom py-20">
-          <div className="max-w-md mx-auto card">
-            <div className="text-center mb-8">
-              <Lock className="w-16 h-16 text-[#B88424] mx-auto mb-4" />
-              <h2 className="text-3xl font-bold text-[#133A63] mb-2">تسجيل الدخول</h2>
-              <p className="text-slate-600">يجب تسجيل الدخول أولاً قبل حجز الاستشارة</p>
-            </div>
-
-            <div className="space-y-4 mb-6">
-              <div>
-                <label className="block text-sm font-bold text-[#133A63] mb-2">البريد الإلكتروني</label>
-                <input
-                  type="email"
-                  placeholder="example@email.com"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-2xl focus:outline-none focus:border-[#B88424]"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-bold text-[#133A63] mb-2">كلمة المرور</label>
-                <input
-                  type="password"
-                  placeholder="••••••••"
-                  className="w-full px-4 py-3 border border-slate-300 rounded-2xl focus:outline-none focus:border-[#B88424]"
-                />
-              </div>
-            </div>
-
-            <button onClick={handleLogin} className="btn-primary w-full mb-4">
-              تسجيل الدخول
-            </button>
-
-            <p className="text-center text-slate-600">
-              ليس لديك حساب؟{' '}
-              <Link href="/register" className="text-[#B88424] font-bold hover:text-[#133A63]">
-                إنشاء حساب جديد
-              </Link>
-            </p>
-          </div>
+        <div className="text-center">
+          <div className="spinner"></div>
+          <p className="text-slate-600">جاري التحقق من بيانات المستخدم...</p>
         </div>
-
-        <Footer />
       </div>
     )
   }
 
-  // Step 2-5: Booking Steps
+  // Booking Steps
   return (
     <div className="min-h-screen bg-white">
       <Navbar />
@@ -126,7 +88,7 @@ export default function BookingPage() {
       <section className="bg-gradient-to-br from-[#133A63] to-[#0A1F36] text-white py-16">
         <div className="container-custom">
           <h1 className="text-4xl md:text-5xl font-bold mb-4">احجز استشارتك</h1>
-          <p className="text-lg text-slate-200">الخطوة {step} من 4</p>
+          <p className="text-lg text-slate-200">الخطوة {step - 1} من 4</p>
         </div>
       </section>
 
@@ -134,7 +96,7 @@ export default function BookingPage() {
         {/* Progress Bar */}
         <div className="mb-12">
           <div className="flex items-center justify-between mb-4">
-            {[1, 2, 3, 4].map((num) => (
+            {[2, 3, 4, 5].map((num) => (
               <div
                 key={num}
                 className={`w-12 h-12 rounded-full flex items-center justify-center font-bold transition-all ${
@@ -150,9 +112,16 @@ export default function BookingPage() {
           <div className="h-2 bg-slate-200 rounded-full overflow-hidden">
             <div
               className="h-full bg-[#B88424] transition-all duration-300"
-              style={{ width: `${((step - 1) / 3) * 100}%` }}
+              style={{ width: `${((step - 2) / 3) * 100}%` }}
             ></div>
           </div>
+        </div>
+
+        {/* User Info Display */}
+        <div className="max-w-2xl mx-auto mb-8 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <p className="text-sm text-slate-700">
+            <strong>مرحباً،</strong> {userData.fullName}
+          </p>
         </div>
 
         {/* Step 2: Select Type */}
@@ -316,9 +285,16 @@ export default function BookingPage() {
 
         {/* Success State */}
         {paymentDone && (
-          <div className="max-w-2xl mx-auto text-center">
-            <div className="card">
-              <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
+          <>
+            <section className="bg-gradient-to-br from-[#133A63] to-[#0A1F36] text-white py-16 mb-12">
+              <div className="container-custom">
+                <h1 className="text-4xl md:text-5xl font-bold mb-4">الحجز مكتمل</h1>
+                <p className="text-lg text-slate-200">شكراً لاختيارك خدماتنا</p>
+              </div>
+            </section>
+            <div className="max-w-2xl mx-auto text-center">
+              <div className="card">
+                <CheckCircle className="w-20 h-20 text-green-500 mx-auto mb-6" />
               <h2 className="text-3xl font-bold text-[#133A63] mb-4">تم الحجز بنجاح!</h2>
               <p className="text-lg text-slate-600 mb-8">
                 سيتم التواصل معك قريباً لتأكيد موعد الاستشارة. تابع بريدك الإلكتروني للتحديثات.
@@ -342,8 +318,9 @@ export default function BookingPage() {
               <Link href="/" className="btn-primary">
                 العودة إلى الرئيسية
               </Link>
+              </div>
             </div>
-          </div>
+          </>
         )}
       </div>
 

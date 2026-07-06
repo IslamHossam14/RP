@@ -70,7 +70,7 @@ export default function ConsultationsPage() {
                     300 جنيها<span className="text-sm text-slate-600 mr-2">الجلسة الواحدة</span>
                   </p>
                 </div>
-                <Link href="/consultations/booking" className="btn-secondary w-full text-center block">
+                <Link href="/consultations/login" className="btn-secondary w-full text-center block">
                   احجز استشارة نفسية
                 </Link>
               </div>
@@ -119,7 +119,7 @@ export default function ConsultationsPage() {
                     500 جنيها<span className="text-sm text-slate-600 mr-2">الاستشارة الواحدة</span>
                   </p>
                 </div>
-                <Link href="/consultations/booking" className="btn-secondary w-full text-center block">
+                <Link href="/consultations/login" className="btn-secondary w-full text-center block">
                   احجز استشارة قانونية
                 </Link>
               </div>

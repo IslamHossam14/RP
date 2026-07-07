@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import Link from 'next/link'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
 import { specializations } from '@/data/specializations'
@@ -283,12 +284,12 @@ export default function RegisterPage() {
               {/* Login Link */}
               <p className="text-center text-slate-600">
                 هل لديك حساب بالفعل؟{' '}
-                <button
-                  type="button"
+                <Link
+                  href="/login"
                   className="text-[#B88424] font-semibold hover:underline"
                 >
                   تسجيل الدخول
-                </button>
+                </Link>
               </p>
             </form>
           </div>

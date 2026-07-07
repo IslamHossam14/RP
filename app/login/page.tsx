@@ -1,6 +1,6 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
 import Navbar from '@/components/Navbar'
 import Footer from '@/components/Footer'
@@ -8,7 +8,7 @@ import { useAuth } from '@/context/AuthContext'
 import { Lock, Mail } from 'lucide-react'
 import Link from 'next/link'
 
-export default function LoginPage() {
+function LoginForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const { login } = useAuth()
@@ -81,32 +81,24 @@ export default function LoginPage() {
   }
 
   return (
-    <div className="min-h-screen bg-white">
-      <Navbar />
+    <>
+      {/* Simple Modal Login Form */}
+      <div className="min-h-screen bg-gradient-to-br from-[#133A63] to-[#0A1F36] flex items-center justify-center px-4 py-8">
+        <div className="card shadow-2xl max-w-md w-full">
+          <div className="mb-6">
+            <h2 className="text-2xl font-bold text-[#133A63] text-center">تسجيل الدخول</h2>
+            <p className="text-center text-slate-500 text-sm mt-2">استمتع بخدماتنا المتميزة</p>
+          </div>
 
-      {/* Hero Section */}
-      <section className="bg-gradient-to-br from-[#133A63] to-[#0A1F36] text-white py-12">
-        <div className="container-custom">
-          <h1 className="text-4xl md:text-5xl font-bold mb-3">تسجيل الدخول</h1>
-          <p className="text-lg text-slate-200">
-            قم بتسجيل الدخول إلى حسابك للوصول إلى الخدمات
-          </p>
-        </div>
-      </section>
+          {submitted && (
+            <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+              <p className="text-green-800 font-semibold text-center text-sm">
+                تم تسجيل الدخول بنجاح! جاري التوجيه...
+              </p>
+            </div>
+          )}
 
-      {/* Login Form */}
-      <section className="py-20">
-        <div className="container-custom max-w-2xl">
-          <div className="card shadow-lg">
-            {submitted && (
-              <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                <p className="text-green-800 font-semibold text-center">
-                  تم تسجيل الدخول بنجاح! جاري التوجيه...
-                </p>
-              </div>
-            )}
-
-            <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
               {/* Email */}
               <div>
                 <label className="block text-sm font-semibold text-[#133A63] mb-2">
@@ -167,12 +159,17 @@ export default function LoginPage() {
                   إنشاء حساب جديد
                 </Link>
               </p>
-            </form>
-          </div>
+          </form>
         </div>
-      </section>
+      </div>
+    </>
+  )
+}
 
-      <Footer />
-    </div>
+export default function LoginPage() {
+  return (
+    <Suspense fallback={<div>جاري التحميل...</div>}>
+      <LoginForm />
+    </Suspense>
   )
 }

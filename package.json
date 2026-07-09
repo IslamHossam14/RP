@@ -34,8 +34,5 @@
     "overrides": {
       "hono": "4.12.25"
     }
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
   }
 }

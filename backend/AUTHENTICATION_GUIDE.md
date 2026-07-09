@@ -72,7 +72,6 @@ This account is automatically created when you run the seed script.
     "user": {
       "id": "user-id",
       "email": "admin@gmail.com",
-      "password": "admin123",
       "name": "Super Admin",
       "phone": "966501234567",
       "avatar": null,

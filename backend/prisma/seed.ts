@@ -25,7 +25,7 @@ async function main() {
       name: 'Super Admin',
       email: 'admin@gmail.com',
       phone: '966501234567',
-      password: 'admin123',
+      password: superAdminPassword,
       role: 'SUPER_ADMIN',
       specialization: 'Administration',
       status: 'ACTIVE',

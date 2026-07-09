@@ -1,0 +1,358 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String      @id @default(cuid())
+  name              String
+  email             String      @unique
+  phone             String
+  password          String
+  avatar            String?
+  role              Role        @default(STUDENT)
+  specialization    String
+  bio               String?
+  status            UserStatus  @default(ACTIVE)
+  emailVerified     Boolean     @default(false)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  registrations     Registration[]
+  payments          Payment[]
+  consultationBookings ConsultationBooking[]
+  studioRequests    StudioRequest[]
+  eventRegistrations EventRegistration[]
+
+  @@index([email])
+  @@index([role])
+  @@index([status])
+}
+
+model Course {
+  id                String      @id @default(cuid())
+  title             String      @unique
+  description       String
+  price             Float
+  duration          String
+  level             String
+  category          CourseCategory
+  content           String[]
+  image             String?
+  instructor        String?
+  maxStudents       Int         @default(50)
+  status            CourseStatus @default(ACTIVE)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  registrations     Registration[]
+  payments          Payment[]
+
+  @@index([category])
+  @@index([status])
+  @@fulltext([title, description])
+}
+
+model Registration {
+  id                String      @id @default(cuid())
+  userId            String
+  courseId          String
+  status            RegistrationStatus @default(PENDING)
+  enrollmentDate    DateTime    @default(now())
+  completionDate    DateTime?
+  progress          Int         @default(0)
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course            Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, courseId])
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+}
+
+model Payment {
+  id                String      @id @default(cuid())
+  userId            String
+  courseId          String
+  amount            Float
+  currency          String      @default("EGP")
+  paymentMethod     PaymentMethod
+  status            PaymentStatus @default(PENDING)
+  transactionId     String?     @unique
+  paymentDate       DateTime?
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  course            Course      @relation(fields: [courseId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([courseId])
+  @@index([status])
+  @@index([paymentDate])
+}
+
+model Consultation {
+  id                String      @id @default(cuid())
+  title             String
+  type              ConsultationType
+  description       String
+  price             Float
+  duration          Int         @default(60)
+  specialist        String
+  specialization    String
+  experience        String
+  available         Boolean     @default(true)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  bookings          ConsultationBooking[]
+
+  @@index([type])
+  @@index([available])
+}
+
+model ConsultationBooking {
+  id                String      @id @default(cuid())
+  userId            String
+  consultationId    String
+  date              DateTime
+  time              String
+  status            BookingStatus @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  consultation      Consultation @relation(fields: [consultationId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, consultationId, date, time])
+  @@index([userId])
+  @@index([consultationId])
+  @@index([status])
+  @@index([date])
+}
+
+model StudioService {
+  id                String      @id @default(cuid())
+  title             String      @unique
+  type              StudioServiceType
+  description       String
+  features          String[]
+  basePrice         Float
+  status            ServiceStatus @default(ACTIVE)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  requests          StudioRequest[]
+
+  @@index([type])
+  @@index([status])
+}
+
+model StudioRequest {
+  id                String      @id @default(cuid())
+  userId            String
+  serviceId         String
+  title             String
+  description       String
+  budget            Float
+  deadline          DateTime?
+  status            RequestStatus @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  attachments       String[]
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  service           StudioService @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([serviceId])
+  @@index([status])
+}
+
+model Event {
+  id                String      @id @default(cuid())
+  title             String
+  description       String
+  type              EventType
+  startDate         DateTime
+  endDate           DateTime
+  location          String
+  capacity          Int
+  image             String?
+  price             Float       @default(0)
+  status            EventStatus @default(UPCOMING)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  registrations     EventRegistration[]
+
+  @@index([type])
+  @@index([status])
+  @@index([startDate])
+}
+
+model EventRegistration {
+  id                String      @id @default(cuid())
+  userId            String
+  eventId           String
+  attendeeCount     Int         @default(1)
+  status            RegistrationStatus @default(PENDING)
+  paymentStatus     PaymentStatus @default(PENDING)
+  notes             String?
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  // Relations
+  user              User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  event             Event       @relation(fields: [eventId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, eventId])
+  @@index([userId])
+  @@index([eventId])
+  @@index([status])
+}
+
+model Contact {
+  id                String      @id @default(cuid())
+  name              String
+  email             String
+  phone             String
+  subject           String
+  message           String
+  status            ContactStatus @default(NEW)
+  createdAt         DateTime    @default(now())
+  updatedAt         DateTime    @updatedAt
+
+  @@index([email])
+  @@index([status])
+  @@index([createdAt])
+}
+
+// Enums
+enum Role {
+  STUDENT
+  INSTRUCTOR
+  ADMIN
+  SUPER_ADMIN
+}
+
+enum UserStatus {
+  ACTIVE
+  INACTIVE
+  PENDING
+  BANNED
+}
+
+enum CourseCategory {
+  DIPLOMA
+  COURSE
+}
+
+enum CourseStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum RegistrationStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  COMPLETED
+}
+
+enum PaymentMethod {
+  CREDIT_CARD
+  BANK_TRANSFER
+  WALLET
+  CASH
+}
+
+enum PaymentStatus {
+  PENDING
+  COMPLETED
+  FAILED
+  REFUNDED
+}
+
+enum ConsultationType {
+  PSYCHOLOGICAL
+  LEGAL
+}
+
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+enum StudioServiceType {
+  VIDEO_PRODUCTION
+  AUDIO_RECORDING
+  PODCAST
+  EVENTS
+  VISUAL_CONTENT
+  MUSIC
+}
+
+enum RequestStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  CANCELLED
+}
+
+enum ServiceStatus {
+  ACTIVE
+  INACTIVE
+  ARCHIVED
+}
+
+enum EventType {
+  CONFERENCE
+  WORKSHOP
+  SEMINAR
+  WEBINAR
+  TRAINING
+  OTHER
+}
+
+enum EventStatus {
+  UPCOMING
+  ONGOING
+  COMPLETED
+  CANCELLED
+}
+
+enum ContactStatus {
+  NEW
+  VIEWED
+  IN_PROGRESS
+  RESOLVED
+}

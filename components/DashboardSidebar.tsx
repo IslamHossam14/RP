@@ -18,7 +18,7 @@ import {
 import { useState } from 'react'
 
 interface DashboardSidebarProps {
-  userRole: 'super-admin' | 'admin' | 'instructor'
+  userRole: 'super_admin' | 'admin' | 'instructor' | 'super-admin'
 }
 
 export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
@@ -34,7 +34,7 @@ export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
       },
     ]
 
-    if (userRole === 'super-admin') {
+    if (userRole === 'super-admin' || userRole === 'super_admin') {
       return [
         ...baseLinks,
         {
@@ -143,7 +143,7 @@ export default function DashboardSidebar({ userRole }: DashboardSidebarProps) {
           {/* User Info */}
           <div className="mb-8 pb-6 border-b border-slate-200">
             <div className="text-sm font-bold text-[#133A63] mb-2">
-              {userRole === 'super-admin' && 'المدير العام'}
+              {(userRole === 'super-admin' || userRole === 'super_admin') && 'المدير العام'}
               {userRole === 'admin' && 'المدير'}
               {userRole === 'instructor' && 'المدرب'}
             </div>

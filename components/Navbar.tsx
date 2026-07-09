@@ -2,10 +2,20 @@
 
 import { useState } from 'react'
 import Link from 'next/link'
-import { Menu, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
+import { Menu, X, LogOut } from 'lucide-react'
+import { useAuth } from '@/contexts/AuthContext'
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false)
+  const { user, logout } = useAuth()
+  const router = useRouter()
+
+  const handleLogout = () => {
+    logout()
+    router.push('/')
+    setIsOpen(false)
+  }
 
   const navLinks = [
     { href: '/', label: 'الرئيسية' },
@@ -46,9 +56,27 @@ const Navbar = () => {
 
         {/* CTA Button */}
         <div className="flex items-center gap-3">
-          <Link href="/register" className="btn-primary hidden sm:inline-flex text-sm">
-            تسجيل دخول
-          </Link>
+          {user ? (
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2 px-4 py-2 rounded-lg bg-slate-50">
+                <div>
+                  <p className="text-sm font-semibold text-[#133A63]">{user.name}</p>
+                  <p className="text-xs text-slate-600">{user.email}</p>
+                </div>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="btn-secondary hidden sm:inline-flex text-sm gap-2"
+              >
+                <LogOut className="w-4 h-4" />
+                تسجيل الخروج
+              </button>
+            </div>
+          ) : (
+            <Link href="/login" className="btn-primary hidden sm:inline-flex text-sm">
+              تسجيل دخول
+            </Link>
+          )}
 
           {/* Mobile Menu Button */}
           <button
@@ -78,13 +106,28 @@ const Navbar = () => {
                 {link.label}
               </Link>
             ))}
-            <Link
-              href="/register"
-              className="block w-full text-center btn-primary mt-4"
-              onClick={() => setIsOpen(false)}
-            >
-              تسجيل دخول
-            </Link>
+            {user ? (
+              <>
+                <div className="px-4 py-3 bg-slate-50 rounded-lg border border-slate-200 text-sm">
+                  <p className="font-semibold text-[#133A63]">{user.name}</p>
+                  <p className="text-xs text-slate-600">{user.email}</p>
+                </div>
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-center btn-secondary mt-4"
+                >
+                  تسجيل الخروج
+                </button>
+              </>
+            ) : (
+              <Link
+                href="/login"
+                className="block w-full text-center btn-primary mt-4"
+                onClick={() => setIsOpen(false)}
+              >
+                تسجيل دخول
+              </Link>
+            )}
           </div>
         </div>
       )}

@@ -283,12 +283,12 @@ export default function RegisterPage() {
               {/* Login Link */}
               <p className="text-center text-slate-600">
                 هل لديك حساب بالفعل؟{' '}
-                <button
-                  type="button"
+                <a
+                  href="/login"
                   className="text-[#B88424] font-semibold hover:underline"
                 >
                   تسجيل الدخول
-                </button>
+                </a>
               </p>
             </form>
           </div>

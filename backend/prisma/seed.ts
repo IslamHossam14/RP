@@ -18,14 +18,14 @@ async function main() {
 
   console.log('Cleared existing data');
 
-  // Create admin user
-  const adminPassword = await hashPassword('AdminPassword123');
-  const admin = await prisma.user.create({
+  // Create super admin user
+  const superAdminPassword = await hashPassword('admin123');
+  const superAdmin = await prisma.user.create({
     data: {
-      name: 'Admin User',
-      email: 'admin@rightplace.com',
+      name: 'Super Admin',
+      email: 'admin@gmail.com',
       phone: '966501234567',
-      password: adminPassword,
+      password: superAdminPassword,
       role: 'SUPER_ADMIN',
       specialization: 'Administration',
       status: 'ACTIVE',
@@ -33,7 +33,7 @@ async function main() {
     },
   });
 
-  console.log('✓ Admin user created');
+  console.log('✓ Super Admin user created (admin@gmail.com : admin123)');
 
   // Create sample students
   const studentPassword = await hashPassword('Student123');

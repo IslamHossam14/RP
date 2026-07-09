@@ -9,6 +9,30 @@ import { ConflictError, UnauthorizedError, NotFoundError } from '../utils/errors
 import { RegisterInput, LoginInput } from '../validators';
 
 export class AuthService {
+  async checkEmail(email: string) {
+    const user = await prisma.user.findUnique({
+      where: { email },
+      select: {
+        id: true,
+        email: true,
+        role: true,
+      },
+    });
+
+    if (user) {
+      return {
+        exists: true,
+        message: 'Email is registered',
+        role: user.role,
+      };
+    }
+
+    return {
+      exists: false,
+      message: 'Email is not registered, you can create an account',
+    };
+  }
+
   async register(data: RegisterInput) {
     const existingUser = await prisma.user.findUnique({
       where: { email: data.email },

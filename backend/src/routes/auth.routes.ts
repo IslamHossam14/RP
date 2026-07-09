@@ -36,6 +36,27 @@ router.post('/register', asyncHandler(authController.register.bind(authControlle
 
 /**
  * @swagger
+ * /api/auth/check-email:
+ *   post:
+ *     summary: Check if email exists (for multi-step login)
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           schema:
+ *             type: object
+ *             properties:
+ *               email:
+ *                 type: string
+ *     responses:
+ *       200:
+ *         description: Email check result
+ */
+router.post('/check-email', asyncHandler(authController.checkEmail.bind(authController)));
+
+/**
+ * @swagger
  * /api/auth/login:
  *   post:
  *     summary: Login user

@@ -10,30 +10,37 @@ import { useAuth } from '@/contexts/AuthContext'
 
 export default function LoginPage() {
   const router = useRouter()
-  const { login } = useAuth()
+  const { login, checkEmail } = useAuth()
   const [step, setStep] = useState<'email' | 'password' | 'create'>('email')
   const [email, setEmail] = useState('')
   const [password, setPassword] = useState('')
   const [error, setError] = useState('')
   const [loading, setLoading] = useState(false)
 
-  // Mock user database
-  const registeredEmails = ['admin@gmail.com', 'user@gmail.com', 'test@gmail.com']
-
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError('')
+    setLoading(true)
 
-    if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
-      setError('البريد الإلكتروني غير صحيح')
-      return
-    }
+    try {
+      if (!email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        setError('البريد الإلكتروني غير صحيح')
+        setLoading(false)
+        return
+      }
 
-    // Check if email is registered
-    if (registeredEmails.includes(email)) {
-      setStep('password')
-    } else {
-      setStep('create')
+      // Check if email exists in backend
+      const { exists } = await checkEmail(email)
+
+      if (exists) {
+        setStep('password')
+      } else {
+        setStep('create')
+      }
+    } catch (err) {
+      setError('حدث خطأ عند التحقق من البريد الإلكتروني')
+    } finally {
+      setLoading(false)
     }
   }
 
@@ -50,15 +57,20 @@ export default function LoginPage() {
       }
 
       await login(email, password)
-
-      // Redirect based on role
-      if (email === 'admin@gmail.com') {
-        router.push('/admin/super-admin')
-      } else {
-        router.push('/dashboard')
+      
+      // Redirect based on role - will be handled by useEffect in auth context
+      // Check stored user role and redirect appropriately
+      const storedUser = localStorage.getItem('user')
+      if (storedUser) {
+        const user = JSON.parse(storedUser)
+        if (user.role === 'super_admin') {
+          router.push('/admin/super-admin')
+        } else {
+          router.push('/dashboard')
+        }
       }
-    } catch (err) {
-      setError('خطأ في تسجيل الدخول')
+    } catch (err: any) {
+      setError(err.message || 'خطأ في تسجيل الدخول')
       setLoading(false)
     }
   }
@@ -125,10 +137,10 @@ export default function LoginPage() {
 
                 <button
                   type="submit"
-                  className="w-full btn-primary py-3 text-lg font-semibold flex items-center justify-center gap-2"
+                  className="w-full btn-primary font-bold disabled:opacity-50"
+                  disabled={loading}
                 >
-                  التالي
-                  <ArrowLeft className="w-5 h-5" />
+                  {loading ? 'جاري التسجيل...' : 'تسجيل الدخول'}
                 </button>
 
                 <div className="relative">

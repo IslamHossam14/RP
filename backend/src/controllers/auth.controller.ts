@@ -6,6 +6,21 @@ import { RegisterSchema, LoginSchema, UpdateProfileSchema } from '../validators'
 import { AuthRequest } from '../middleware/auth';
 
 export class AuthController {
+  async checkEmail(req: AuthRequest, res: Response) {
+    try {
+      const { email } = req.body;
+
+      if (!email) {
+        return sendError(res, 'Email is required', 'Missing email', 400);
+      }
+
+      const result = await authService.checkEmail(email);
+      return sendSuccess(res, result, 'Email check completed', 200);
+    } catch (error: any) {
+      return sendError(res, error.message, error.message, error.statusCode || 500);
+    }
+  }
+
   async register(req: AuthRequest, res: Response) {
     try {
       const validatedData = RegisterSchema.parse(req.body);
